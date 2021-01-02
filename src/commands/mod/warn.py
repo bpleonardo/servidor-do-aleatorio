@@ -31,8 +31,6 @@ class WarnCMD(commands.Cog):
                 'staff': ctx.author.id,
                 'reason': reason,
                 'date': ctx.message.created_at.replace(tzinfo=utc),
-                # TODO: Remover o timestamp
-                'timestamp': ctx.message.created_at.replace(tzinfo=utc).timestamp()
             }}
         })
 
