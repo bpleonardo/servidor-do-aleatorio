@@ -1,0 +1,10 @@
+{
+    "python.linting.pylintArgs": [
+        "--init-hook",
+        "import sys; sys.path.append('src')",
+        "--rcfile=tox.ini"
+    ],
+    "python.linting.flake8Enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.analysis.extraPaths": ["src"],
+}

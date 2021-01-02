@@ -1,0 +1,25 @@
+{
+    "ban": [
+        "{P} **Usuário banido:** {member.mention}",
+        "{P} **Motivo:** {reason}"
+    ],
+    "mute": [
+        "{P} **Usuário mutado:** {member.mention}",
+        "{P} **Motivo:** {reason}",
+        "{P} **Duração:** {duration}"
+    ],
+    "unban": [
+        "{P} {member.mention} desbanido(a)."
+    ],
+    "unwarn": [
+        "{P} Warn **{index}** removido de {member.mention}."
+    ],
+    "warn": [
+        "{P} **Usuário avisado:** {member.mention}",
+        "{P} **Motivo:** {reason}",
+        "{P} Esse é seu **{streak}º warn**."
+    ],
+    "unmute": [
+        "{P} {member.mention} desmutado(a)."
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "ban": [
+        "raid",
+        "preconceito",
+        "conteúdo sensivel",
+        "apologia",
+        "divulgação",
+        "doxing",
+        "desconforto em call",
+        "falsificação de identidade"
+    ],
+    "mute": [
+        "flood",
+        "offtopic",
+        "toxidade",
+        "desconforto em call",
+        "menção desnecessária"
+    ],
+    "warn": [
+        "flood",
+        "offtopic",
+        "panelinha",
+        "apologia",
+        "menção desnecessária"
+    ]
+}
