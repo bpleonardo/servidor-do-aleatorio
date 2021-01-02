@@ -4,6 +4,7 @@ from jishaku.metacog import GroupCogMeta
 from jishaku.modules import ExtensionConverter
 
 import config
+from utils.context import CustomContext
 
 
 def is_owner(ctx):
@@ -11,7 +12,7 @@ def is_owner(ctx):
 
 
 class Jishaku(JishakuBase, metaclass=GroupCogMeta, command_parent=jsk):
-    async def cog_check(self, ctx):
+    async def cog_check(self, ctx: CustomContext):
         """Isso definirá quem consegue usar o jishaku."""
         if not is_owner(ctx):
             raise commands.NotOwner("Este comando é apenas para desenvolvedores.")

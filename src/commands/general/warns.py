@@ -1,18 +1,21 @@
+from datetime import datetime
 from typing import Union
 
-import discord
 import pytz
+import discord
 from discord.ext import commands
 
 import config
+from bot import Bot
+from utils.context import CustomContext
 
 
 class WarnsCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     @commands.command('warns')
-    async def _warns(self, ctx, member: Union[discord.Member, discord.User] = None):
+    async def _warns(self, ctx: CustomContext, member: Union[discord.Member, discord.User] = None):
         await ctx.trigger_typing()
 
         if not member:
@@ -34,7 +37,7 @@ class WarnsCMD(commands.Cog):
         embed.description = f'{count} warn{"s" if count != 1 else ""}.'
         fmt = '**- Horário do warn:** {}\n**- Motivo do warn**: {}'
         for key, warn in enumerate(member_warns.info):
-            date = warn['date'].replace(tzinfo=pytz.UTC)
+            date: datetime = warn['date'].replace(tzinfo=pytz.UTC)
             date = date.astimezone(config.tz)
 
             formatted = date.strftime('%d/%m/%Y às %H:%M')

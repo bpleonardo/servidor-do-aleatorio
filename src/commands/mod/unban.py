@@ -2,16 +2,18 @@ import discord
 from discord.ext import commands
 
 import config
+from bot import Bot
+from utils.context import CustomContext
 
 
 class UnbanCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     @commands.command('unban')
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def _unban(self, ctx, member: discord.User):
+    async def _unban(self, ctx: CustomContext, member: discord.User):
         embed = discord.Embed(
             description=f'Deseja realmente desbanir {member}?',
             color=config.main_color

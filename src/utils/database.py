@@ -1,13 +1,16 @@
-import typing
+from typing import Dict, Any, Optional, AsyncIterator
 from collections import deque
 
 from pymongo import ReturnDocument
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 
+NoResults = -999
+
+
 class Document:
-    def __init__(self, collection, data: dict):
-        self.collection = collection
+    def __init__(self, collection, data: Dict[str, Any]):
+        self.collection: Collection = collection
         self.data = data or {}
 
     def __iter__(self):
@@ -27,7 +30,7 @@ class Document:
         """
         self.data.update(update)
 
-    async def update_and_sync(self, update: dict):
+    async def update_and_sync(self, update: Dict[str, Dict[str, Any]]):
         updated = await self.collection.update(self._id, update)
         self.data = updated.data.copy()
         return self
@@ -42,14 +45,13 @@ class Document:
         self.data = {}
 
 
-NoResults = -999
-
-
 class DBLRUCache:
     """
     Minha própria implementação de LRU cache feita para funcionar com esta database.
     Foi bastante modificado.
     """
+    __slots__ = ('max_size', '__container', '__map')
+
     def __init__(self, max_size: int = 100):
         self.max_size = max_size
         self.__container = deque()  # deque de (id, documento)
@@ -65,7 +67,7 @@ class DBLRUCache:
             for key, value in enumerate(self.__container):
                 self.__map[value[0]] = key
 
-    def get(self, id_: str, doc: Document = NoResults) -> typing.Optional[Document]:
+    def get(self, id_: str, doc: Document = NoResults) -> Optional[Document]:
         """
         Isso retornará o valor do cache, se existir, e atualizar as
         posições.
@@ -92,11 +94,11 @@ class DBLRUCache:
             del self.__map[id_]
             self.reallocate()
 
-    def _insert(self, id_, doc: Document):
+    def _insert(self, id_, doc):
         self.__container.appendleft((id_, doc))
         self.reallocate()
 
-    def insert(self, id_: str, doc: Document):
+    def insert(self, id_: str, doc: Document) -> Document:
         """Isso irá adicionar o documento ou atualizar seu uso."""
         if id_ in self.__map:
             self.get(id_)
@@ -114,7 +116,7 @@ class Collection:
         if not template:
             template = {}
         self.collection: AsyncIOMotorCollection = collection
-        self.template = {}
+        self.template = template
         self.__cache = DBLRUCache(100)
 
     async def new(self, id_: str) -> Document:
@@ -145,7 +147,9 @@ class Collection:
 
         return self.__cache.insert(id_, Document(self, doc))
 
-    async def update(self, id_: str, update: dict) -> Document:
+    async def update(self,
+                     id_: str,
+                     update: Dict[str, Dict[str, Any]]) -> Document:
         id_ = str(id_)
 
         updated = await self.collection.find_one_and_update(
@@ -161,7 +165,7 @@ class Collection:
 
         return self.__cache.insert(id_, Document(self, updated))
 
-    async def all(self) -> typing.AsyncIterator[Document]:
+    async def all(self) -> AsyncIterator[Document]:
         cursor = self.collection.find({})
         async for doc in cursor:
             yield Document(self, doc)
@@ -170,9 +174,11 @@ class Collection:
 class Database:
     __slots__ = ('client', 'db')
 
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name: str, *args, **kwargs):
         self.client = AsyncIOMotorClient(*args, **kwargs)
         self.db = self.client[name]
 
-    def get_collection(self, name, template=None):
+    def get_collection(self,
+                       name: str,
+                       template: Dict[str, Any] = None) -> Collection:
         return Collection(self.db[name], template)

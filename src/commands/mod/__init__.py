@@ -1,13 +1,14 @@
 from asyncio import TimeoutError
-from typing import List
+from typing import List, Optional
 
 import discord
 
 import config
 from utils import safe_cancel
+from utils.context import CustomContext
 
 
-def can_do_action(ctx, member):
+def can_do_action(ctx, member: discord.Member) -> Optional[str]:
     """
     Checa se um membro pode executar uma ação sobre outro.
     Caso não possa, retornará um texto explicativo.
@@ -70,17 +71,17 @@ class ReasonAsker():
 
         self.embed.description = f'{self.SEP} {description} {self.SEP}'
 
-    def reaction_check(self, ctx):
-        def inner(reaction, user):
+    def reaction_check(self, ctx: CustomContext):
+        def inner(reaction: discord.Reaction, user: discord.Member):
             return all((
                 user == ctx.author,
                 reaction.message.channel == ctx.channel,
-                str(reaction.emoji) in self.buttons
+                str(reaction.emoji) in self.buttons or str(reaction.emoji) == '\N{CROSS MARK}'
             ))
         return inner
 
-    def message_check(self, ctx):
-        def inner(message):
+    def message_check(self, ctx: CustomContext):
+        def inner(message: discord.Message):
             return all((
                 message.channel == ctx.channel,
                 message.author == ctx.author,
@@ -88,11 +89,12 @@ class ReasonAsker():
             ))
         return inner
 
-    async def add_buttons(self, message):
+    async def add_buttons(self, message: discord.Message):
         for button in self.buttons:
             await message.add_reaction(button)
+        await message.add_reaction('\N{CROSS MARK}')
 
-    async def run(self, ctx, embed_title):
+    async def run(self, ctx: CustomContext, embed_title: str):
         embed = self.embed.copy()
         embed.title = embed_title
 
@@ -112,11 +114,16 @@ class ReasonAsker():
         finally:
             await safe_cancel(task)
 
+        if str(reaction.emoji) == '\N{CROSS MARK}':
+            await msg.delete()
+            return None, None
+
         await msg.clear_reactions()
 
         if str(reaction.emoji) == list(self.buttons.keys())[-1]:
             # Outro
             embed.description = f'{self.PONTO} Digite o motivo.'
+            embed.set_footer(text='Digite cancelar para sair.')
             await msg.edit(embed=embed)
 
             try:
@@ -129,12 +136,16 @@ class ReasonAsker():
                 await msg.delete()
                 return None, None
 
+            if message.content.lower() == 'cancelar':
+                await msg.delete()
+                return None, None
+
             return msg, message.content.title()
 
         return msg, self.buttons[str(reaction.emoji)].title()
 
 
-async def update_overwrites(ctx, target, **new_overwrites):
+async def update_overwrites(ctx: CustomContext, target: discord.Role, **new_overwrites: bool):
     channel = ctx.channel
 
     overwrites = dict(channel.overwrites_for(target))

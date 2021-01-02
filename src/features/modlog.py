@@ -4,12 +4,13 @@ import discord
 from discord.ext import commands
 
 import config
+from bot import Bot
 from utils import get_data
 
 
 class ModlogFEAT(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     async def _notify_staff(self, name, author, member, reason, **extra):
         embed = discord.Embed(title=f'Recebido {name.lower()}', color=config.main_color)

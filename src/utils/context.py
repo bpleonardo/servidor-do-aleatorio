@@ -4,7 +4,7 @@ from discord.ext import commands
 
 
 class CustomContext(commands.Context):
-    async def prompt(self, *args, **kwargs):
+    async def prompt(self, *args, **kwargs) -> bool:
         """Envia a mensagem e adiciona reações de confirmação.
 
         Parameters

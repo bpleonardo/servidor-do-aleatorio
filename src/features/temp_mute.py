@@ -1,10 +1,12 @@
 import asyncio
 from datetime import datetime
+from typing import Any, Dict, List
 
 import discord
 from discord.ext import commands
 
 import config
+from bot import Bot
 from utils import FakeMember, safe_cancel
 
 
@@ -14,8 +16,8 @@ class TempMuteFEAT(commands.Cog):
     Desde desmutar no horário certo até manipulação da database.
     """
     def __init__(self, bot):
-        self.bot = bot
-        self.current_mutes = dict()
+        self.bot: Bot = bot
+        self.current_mutes: Dict[datetime, List[int]] = dict()
         self._started = asyncio.Event()
         # Eu prefiro usar task pois assim eu posso cancelar e iniciar
         # sem ativar hooks.
@@ -59,7 +61,7 @@ class TempMuteFEAT(commands.Cog):
         self.current_mutes = {}
         await asyncio.sleep(0)  # Necessário para outras tasks rodarem.
 
-    async def mute(self, date, *members, **data):
+    async def mute(self, date, *members: int, **data: Dict[str, Any]):
         await self._started.wait()
 
         current = self.current_mutes
@@ -74,7 +76,7 @@ class TempMuteFEAT(commands.Cog):
             member_doc.update(unmute_date=date, **data)
             await member_doc.sync()
 
-    async def _unmute(self, *members):
+    async def _unmute(self, *members: int):
         guild = self.bot.get_guild(config.guild_id)
         mute_role = guild.get_role(config.mute_role)
 
@@ -92,7 +94,7 @@ class TempMuteFEAT(commands.Cog):
 
             await self.bot.mutes_col.delete(member_id)
 
-    async def remove_member_from_unmute_queue(self, member):
+    async def remove_member_from_unmute_queue(self, member: int):
         for date, muted_members in self.current_mutes.items():
             await asyncio.sleep(0)
             if member in muted_members:

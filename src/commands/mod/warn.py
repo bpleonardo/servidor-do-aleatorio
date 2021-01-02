@@ -3,19 +3,21 @@ from discord.ext import commands
 from pytz import utc
 
 import config
+from bot import Bot
 from utils import get_data
+from utils.context import CustomContext
 from . import ReasonAsker, can_do_action
 
 
 class WarnCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
         self.asker = ReasonAsker(get_data('reasons.json')['warn'])
 
     @commands.command(name='warn')
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
-    async def _warn(self, ctx, member: discord.Member):
+    async def _warn(self, ctx: CustomContext, member: discord.Member):
         missing_perms = can_do_action(ctx, member)
         if missing_perms:
             return await ctx.send(missing_perms)

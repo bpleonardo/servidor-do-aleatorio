@@ -1,14 +1,17 @@
 import discord
 from discord.ext import commands
 
+from bot import Bot
+from utils.context import CustomContext
+
 
 class UnwarnCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     @commands.command(name='unwarn')
     @commands.has_permissions(manage_messages=True)
-    async def _unwarn(self, ctx, member: discord.User, index: int = None):
+    async def _unwarn(self, ctx: CustomContext, member: discord.User, index: int = None):
         member_warns = await self.bot.warns_col.find(member.id)
 
         if not member_warns:

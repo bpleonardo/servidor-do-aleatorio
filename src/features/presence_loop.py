@@ -4,11 +4,12 @@ import discord
 from discord.ext import commands, tasks
 
 import config
+from bot import Bot
 
 
 class PresenceLoopFEAT(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
         self.presence_cycle = cycle(config.presences)
         self.update_presence.start()  # pylint: disable=no-member

@@ -2,17 +2,19 @@ import discord
 from discord.ext import commands
 
 import config
+from bot import Bot
+from utils.context import CustomContext
 from . import update_overwrites
 
 
 class UnlockCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     @commands.command('unlock')
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_channels=True)
-    async def _unlock(self, ctx):
+    async def _unlock(self, ctx: CustomContext):
         everyone_role = ctx.guild.get_role(ctx.guild.id)
         await update_overwrites(ctx, everyone_role, send_messages=None)
         embed = discord.Embed(

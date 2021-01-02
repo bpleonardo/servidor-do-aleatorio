@@ -1,38 +1,42 @@
 import asyncio
 from datetime import datetime
-from functools import partial
 
 import discord
 from discord.ext import commands
 
 import config
+from bot import Bot
 from utils import get_data, parse_time, format_delta
+from utils.context import CustomContext
 from . import ReasonAsker, can_do_action
 
 
-def message_check(ctx, message):
-    from_the_right_place = all((
-        message.author == ctx.author,
-        message.channel == ctx.channel,
-    ))
-    has_the_correct_content = any((
-        message.content.lower() in ('p', 'cancelar'),
-        parse_time(message.content).total_seconds()
-    ))
+def message_check(ctx: CustomContext):
+    def inner(message: discord.Message):
+        from_the_right_place = all((
+            message.author == ctx.author,
+            message.channel == ctx.channel,
+        ))
+        has_the_correct_content = any((
+            message.content.lower() in ('p', 'cancelar'),
+            parse_time(message.content).total_seconds()
+        ))
 
-    return from_the_right_place and has_the_correct_content
+        return from_the_right_place and has_the_correct_content
+
+    return inner
 
 
 class MuteCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
         self.asker = ReasonAsker(get_data('reasons.json')['mute'])
 
     @commands.command('mute')
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def mute(self, ctx, member: discord.Member):
+    async def mute(self, ctx: CustomContext, member: discord.Member):
         mute_role = ctx.guild.get_role(config.mute_role)
 
         if mute_role in member.roles:
@@ -65,7 +69,7 @@ class MuteCMD(commands.Cog):
         await msg.edit(embed=embed)
 
         try:
-            answer = await self.bot.wait_for('message', check=partial(message_check, ctx))
+            answer = await self.bot.wait_for('message', check=message_check(ctx))
         except asyncio.TimeoutError:
             return await msg.delete()
         if answer.content.lower() == 'cancelar':
@@ -85,7 +89,7 @@ class MuteCMD(commands.Cog):
         await msg.edit(embed=embed)
 
         duration = 'Permanente.'
-        if answer.content.lower() not in ('cancelar', 'p'):
+        if answer.content.lower() != 'p':
             duration = format_delta(parse_time(answer.content))
 
         self.bot.dispatch('mod_action', 'mute', ctx.author, member, reason, duration=duration)

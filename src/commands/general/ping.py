@@ -1,12 +1,15 @@
 from discord.ext import commands
 
+from bot import Bot
+from utils.context import CustomContext
+
 
 class PingCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     @commands.command('ping')
-    async def _ping(self, ctx):
+    async def _ping(self, ctx: CustomContext):
         api_ping = round(self.bot.latency * 1000, 2)
 
         msg = await ctx.send('\N{ZERO WIDTH SPACE}')
@@ -18,5 +21,5 @@ class PingCMD(commands.Cog):
                                f'Tempo de resposta: **{response_time}**ms')
 
 
-def setup(bot):
+def setup(bot: Bot):
     bot.add_cog(PingCMD(bot))

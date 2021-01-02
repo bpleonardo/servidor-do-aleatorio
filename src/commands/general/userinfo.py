@@ -4,17 +4,21 @@ import discord
 from discord.ext import commands
 
 import config
+from bot import Bot
+from utils import format_delta
+from utils.context import CustomContext
+
+
+def is_staff(member: discord.Member) -> bool:
+    return any(c for c in member.roles if c.id == config.staff_id)
 
 
 class UserinfoCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-
-    def is_staff(self, member):
-        return any(c for c in member.roles if c.id == config.staff_id)
+        self.bot: Bot = bot
 
     @commands.command('userinfo')
-    async def _userinfo(self, ctx, member: discord.Member = None):
+    async def _userinfo(self, ctx: CustomContext, member: discord.Member = None):
         if member is None:
             member = ctx.author
 
@@ -25,15 +29,15 @@ class UserinfoCMD(commands.Cog):
             '<:staff:784316055996727327> **Faz parte da staff:** {3}\n'
         )
 
-        relative_creation = self.bot.format_delta(datetime.utcnow() - member.created_at)
-        relative_join = self.bot.format_delta(datetime.utcnow() - member.joined_at)
-        member_is_staff = 'Sim' if self.is_staff(member) else 'Não'
+        relative_creation = format_delta(datetime.utcnow() - member.created_at)
+        relative_join = format_delta(datetime.utcnow() - member.joined_at)
+        member_is_staff = 'Sim' if is_staff(member) else 'Não'
         member_warns_count = 0
 
         embed = discord.Embed(color=config.main_color)
         embed.set_author(name=member.display_name, icon_url=member.avatar_url)
 
-        if self.is_staff(ctx.author):
+        if is_staff(ctx.author):
             fmt += '\N{HEAVY EXCLAMATION MARK SYMBOL} **Warns:** {4}'
             member_warns = await self.bot.warns_col.find(member.id)
             if member_warns:

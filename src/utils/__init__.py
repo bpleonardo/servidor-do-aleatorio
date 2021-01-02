@@ -1,12 +1,14 @@
-
 import re
 import json
+import asyncio
 from datetime import timedelta
 from functools import partial
-from asyncio import CancelledError
+from typing import Dict, Any
+import traceback
 
 import humanize
-from discord import Object, Asset
+from discord import Object, Asset, Guild
+
 
 _time_pattern = (
     r'(?:(?P<days>\d{1,3})(?:dias?|d))?'
@@ -16,7 +18,7 @@ _time_pattern = (
 )
 
 
-def parse_time(time: str) -> timedelta:
+def parse_time(time: str):
     """Converte uma string para timedelta.
 
     Parameters
@@ -29,10 +31,10 @@ def parse_time(time: str) -> timedelta:
 
     Returns
     -------
-    timedelta
+    :class:`timedelta`
         O timedelta representando o tempo passado.
     """
-    parsed_time = re.search(_time_pattern, time.lower(), re.VERBOSE)
+    parsed_time = re.search(_time_pattern.replace(' ', ''), time.lower(), re.VERBOSE)
 
     times_dict = parsed_time.groupdict()
 
@@ -45,22 +47,10 @@ def parse_time(time: str) -> timedelta:
     return timedelta(**times_dict)
 
 
-class JSON(dict):
-    def __getattr__(self, attr):
-        try:
-            return self.__getattribute__(attr)
-        except AttributeError as e:
-            attr_error = e
-        try:
-            return self.__getitem__(attr)
-        except KeyError:
-            raise attr_error from None
-
-
 __data_cache = {}
 
 
-def get_data(name):
+def get_data(name: str) -> Dict[str, Any]:
     from_cache = __data_cache.get(name)
     if from_cache:
         return from_cache
@@ -69,12 +59,12 @@ def get_data(name):
     return __data_cache[name]
 
 
-async def safe_cancel(task):
+async def safe_cancel(task: asyncio.Task):
     """Cancela uma task sem dar CancelledError."""
     task.cancel()
     try:
         await task
-    except CancelledError:
+    except asyncio.CancelledError:
         pass
 
 
@@ -84,7 +74,7 @@ format_delta = partial(humanize.precisedelta, format='%d', minimum_unit='minutes
 class FakeMember(Object):
     """Usado pelo modlog."""
 
-    def __init__(self, id_, guild):
+    def __init__(self, id_: int, guild: Guild):
         super().__init__(id_)
         self._guild = guild
 
@@ -107,3 +97,13 @@ class FakeMember(Object):
 
     def __str__(self):
         return str(self.id)
+
+
+def get_exception(e: Exception, size: int = 3):
+    tb = traceback.extract_tb(e.__traceback__)[-size:]
+    exc = ''.join(traceback.format_list(tb))
+
+    # Por algum motivo ele não retorna o erro em si,
+    # então tenho que inserir manualmente.
+    exc += f'{e.__class__.__name__}: {e}'
+    return exc

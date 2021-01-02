@@ -1,34 +1,26 @@
-import traceback
 import re
+from typing import Tuple
 
 import discord
 from discord.ext import commands
 
 import config
-from utils import get_data
+from bot import Bot
+from utils import get_data, get_exception
+from utils.context import CustomContext
 
 
-def get_exception(e: Exception, size: int = 3):
-    tb = traceback.extract_tb(e.__traceback__)[-size:]
-    exc = ''.join(traceback.format_list(tb))
-
-    # Por algum motivo ele não retorna o erro em si,
-    # então tenho que inserir manualmente.
-    exc += f'{e.__class__.__name__}: {e}'
-    return exc
-
-
-ignored_errors = (
+ignored_errors: Tuple[discord.DiscordException] = (
     commands.CommandNotFound,
 )
 
 
 class ErrorHandlerFEAT(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error: commands.CommandError):  # noqa
+    async def on_command_error(self, ctx: CustomContext, error: commands.CommandError):  # noqa
         original = error.__cause__
 
         if isinstance(error, ignored_errors):
@@ -37,15 +29,19 @@ class ErrorHandlerFEAT(commands.Cog):
             return
 
         if isinstance(error, commands.BadArgument):
-            msg = str(error)
+            if str(error).endswith('not found.'):
+                name = re.search(r'(?:.+) "(.+)" (?:(not found.))', str(error)).group(1)
+                return await ctx.send(f'**{name}** não encontrado.')
 
-            match = re.findall(r'"([\w\d]+)"', str(error))
-            if len(match) == 2:
-                msg = f'Não foi possivel converter "{match[0]}" para "{match[1]}".'
-            elif msg.endswith('not found.'):
-                msg = f'**{match[0]}** não encontrado.'
+            if str(error).startswith('Could not convert'):
+                name, value = re.findall(
+                    r'(?:(Could not convert)) "(.+)" into "(.+)"',
+                    str(error)
+                )[0][1:3]
 
-            return await ctx.send(msg)
+                return await ctx.send(f'Não foi possível converter **{name}** em **{value}**')
+
+            return await ctx.send(str(error))
 
         if isinstance(error, commands.BadUnionArgument):
             # Código do BadUnionArgument
@@ -64,13 +60,13 @@ class ErrorHandlerFEAT(commands.Cog):
             return await ctx.send(f'Não foi possivel converter "{error.param.name}" para {fmt}.')
 
         if isinstance(error, commands.MissingPermissions):
-            perm = get_data('permissions.json')[error.missing_perms[0]]
+            perm = get_data('permissions.json')[str(error.missing_perms[0])]
 
             msg = f'Você precisa da permissão **{perm.title()}** para executar esse comando.'
             return await ctx.send(msg)
 
         if isinstance(error, commands.BotMissingPermissions):
-            perm = get_data('permissions.json')[error.missing_perms[0]]
+            perm = get_data('permissions.json')[str(error.missing_perms[0])]
 
             msg = f'Eu preciso da permissão **{perm.title()}** para executar esse comando.'
             return await ctx.send(msg)
@@ -90,7 +86,7 @@ class ErrorHandlerFEAT(commands.Cog):
         )
 
         embed = discord.Embed(title='Erro!', description=msg, color=ctx.author.id >> 22 & 0xFFFFFF)
-        embed.add_field(name=(original or error).__class__.__name__, value=exc)
+        embed.add_field(name=(original or error).__class__.__name__, value=f'```py\n{exc}```')
 
         await self.bot.get_channel(config.errors_channel).send(embed=embed)
         await ctx.send('Um erro aconteceu. Ele já foi reportado :)')

@@ -7,7 +7,7 @@ from . import parse_time
 
 class RelativeTime(commands.Converter):
     """Retorna um timedelta representando o tempo especificado."""
-    async def convert(self, ctx, argument):
+    async def convert(self, _, argument):
         parsed = parse_time(argument)
 
         if parsed.total_seconds() == 0:

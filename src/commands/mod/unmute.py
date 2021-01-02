@@ -2,17 +2,19 @@ import discord
 from discord.ext import commands
 
 import config
+from bot import Bot
+from utils.context import CustomContext
 from . import can_do_action
 
 
 class UnmuteCMD(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     @commands.command('unmute')
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def _unmute(self, ctx, member: discord.Member):
+    async def _unmute(self, ctx: CustomContext, member: discord.Member):
         mute_role = ctx.guild.get_role(config.mute_role)
         if mute_role not in member.roles:
             return await ctx.send('Este membro não está mutado.')
