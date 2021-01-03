@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Union
 
-import pytz
 import discord
 from discord.ext import commands
 
@@ -37,7 +36,7 @@ class WarnsCMD(commands.Cog):
         embed.description = f'{count} warn{"s" if count != 1 else ""}.'
         fmt = '**- Horário do warn:** {}\n**- Motivo do warn**: {}'
         for key, warn in enumerate(member_warns.info):
-            date: datetime = warn['date'].replace(tzinfo=pytz.UTC)
+            date: datetime = warn['date'].replace(tzinfo=timezone.utc)
             date = date.astimezone(config.tz)
 
             formatted = date.strftime('%d/%m/%Y às %H:%M')

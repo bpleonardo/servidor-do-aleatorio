@@ -1,6 +1,7 @@
+from datetime import timezone
+
 import discord
 from discord.ext import commands
-from pytz import utc
 
 import config
 from bot import Bot
@@ -32,7 +33,7 @@ class WarnCMD(commands.Cog):
             '$push': {'info': {
                 'staff': ctx.author.id,
                 'reason': reason,
-                'date': ctx.message.created_at.replace(tzinfo=utc),
+                'date': ctx.message.created_at.replace(tzinfo=timezone.utc),
             }}
         })
 

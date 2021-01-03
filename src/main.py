@@ -22,7 +22,7 @@ bot = Bot(
 )
 
 bot.remove_command('help')
-humanize.i18n.activate('pt_BR')
+humanize.activate('pt_BR')
 
 if __name__ == '__main__':
     extensions = glob('src/features/*.py')
