@@ -25,9 +25,6 @@ class WarnCMD(commands.Cog):
 
         msg, reason = await self.asker.run(ctx, f'Avisar {member.display_name} com o motivo:')
 
-        if not msg:
-            return
-
         user_warns = await self.bot.warns_col.update(member.id, {
             '$inc': {'count': 1},
             '$push': {'info': {

@@ -55,7 +55,10 @@ def get_data(name: str) -> Dict[str, Any]:
     if from_cache:
         return from_cache
     with open(f'src/data/{name}') as f:
-        __data_cache[name] = json.load(f)
+        if name.endswith('.json'):
+            __data_cache[name] = json.load(f)
+        else:
+            __data_cache[name] = f.read()
     return __data_cache[name]
 
 

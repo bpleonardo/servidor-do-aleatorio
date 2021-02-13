@@ -25,9 +25,6 @@ class BanCMD(commands.Cog):
 
         msg, reason = await self.asker.run(ctx, f'Banir {member.display_name} com o motivo:')
 
-        if not msg:
-            return
-
         await ctx.guild.ban(member, reason=f'Por {ctx.author} | {reason}')
 
         txt = f'{config.emotes[9]} {member} banido(a) por {reason}.'

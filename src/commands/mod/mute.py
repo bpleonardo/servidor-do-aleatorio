@@ -51,9 +51,6 @@ class MuteCMD(commands.Cog):
 
         msg, reason = await self.asker.run(ctx, f'Silenciar {member.display_name} com o motivo:')
 
-        if not msg:
-            return
-
         tempmute_cog = self.bot.get_cog('TempMuteFEAT')
 
         embed = discord.Embed(title='Qual o tempo do mute?', color=config.main_color)

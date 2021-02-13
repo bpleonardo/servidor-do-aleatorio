@@ -1,4 +1,4 @@
-from asyncio import TimeoutError
+from asyncio import TimeoutError, CancelledError
 from typing import List, Optional
 
 import discord
@@ -48,6 +48,8 @@ def can_do_action(ctx, member: discord.Member) -> Optional[str]:
         result = 'Esse sou eu.'
 
     return result
+    # pera, eu tinha usado aqui eu tirei kkkkkkkkk
+    # ta no github ent, vcs querem ver?
 
 
 class ReasonAsker():
@@ -110,13 +112,13 @@ class ReasonAsker():
             )
         except TimeoutError:
             await msg.delete()
-            return None, None
+            raise CancelledError from None
         finally:
             await safe_cancel(task)
 
         if str(reaction.emoji) == '\N{CROSS MARK}':
             await msg.delete()
-            return None, None
+            raise CancelledError from None
 
         await msg.clear_reactions()
 
@@ -134,11 +136,11 @@ class ReasonAsker():
                 )
             except TimeoutError:
                 await msg.delete()
-                return None, None
+                raise CancelledError from None
 
             if message.content.lower() == 'cancelar':
                 await msg.delete()
-                return None, None
+                raise CancelledError from None
 
             return msg, message.content.title()
 
