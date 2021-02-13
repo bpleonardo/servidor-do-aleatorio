@@ -24,7 +24,7 @@ class UnbanCMD(commands.Cog):
             return await ctx.send('Ok. Cancelando.')
 
         try:
-            await ctx.guild.unban(member.id, reason=f'Por {ctx.author}')
+            await ctx.guild.unban(member, reason=f'Por {ctx.author}')
         except discord.NotFound:
             return await ctx.send(f'{member.name} não está banido.')
 
