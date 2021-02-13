@@ -75,8 +75,8 @@ class CaptchaFEAT(commands.Cog):
 
             tries += 1
             if max(1, tries) % 4 == 0:
-                await msg.edit(content='3 tentativas incorretas. Aguarde 2 minutos...', embed=None)
-                await sleep(5)
+                await msg.edit(content='3 tentativas incorretas. Aguarde 1 minuto...', embed=None)
+                await sleep(60)
                 continue
 
             word = self.random_case(choice(self.captchas))
