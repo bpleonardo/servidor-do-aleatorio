@@ -61,20 +61,20 @@ class CaptchaFEAT(commands.Cog):
             '**Não** use nenhum tipo de formatação, mesmo a mensagem incluindo.'
         )
 
-        possible_formats = ('**', '_', '~~', '__')
+        possible_formats = ('~~', '_', '**', '__', '||')
         tries = 0
         while True:
-            if tries == 10:
+            if tries == 10 and member not in config.owners:
                 await msg.edit(content='10 tentativas incorretas. Cancelando.')
                 await sleep(5)
                 await channel.delete()
                 try:
-                    await member.kick()
+                    await member.kick(reason='10 tentativas.')
                 except HTTPException:
                     pass
 
             tries += 1
-            if max(1, tries) % 0:
+            if max(1, tries) % 4 == 0:
                 await msg.edit(content='3 tentativas incorretas. Aguarde 2 minutos...', embed=None)
                 await sleep(5)
                 continue
@@ -82,7 +82,8 @@ class CaptchaFEAT(commands.Cog):
             word = self.random_case(choice(self.captchas))
             f1 = choice(possible_formats)
             f2 = choice(possible_formats)
-            embed.description = txt.format(f'{f1}{f2}{word}{f2}{f1}')
+            zws = '\N{ZERO WIDTH SPACE}'
+            embed.description = txt.format(f'{f1}{zws}{f2}{word}{f2}{zws}{f1}')
             await msg.edit(content=None, embed=embed)
 
             try:
