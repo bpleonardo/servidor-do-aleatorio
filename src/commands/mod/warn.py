@@ -41,7 +41,7 @@ class WarnCMD(commands.Cog):
 
         self.bot.dispatch(
             'mod_action',
-            'unwarn',
+            'warn',
             ctx.author,
             member,
             reason,

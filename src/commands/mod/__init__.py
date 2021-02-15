@@ -48,8 +48,6 @@ def can_do_action(ctx, member: discord.Member) -> Optional[str]:
         result = 'Esse sou eu.'
 
     return result
-    # pera, eu tinha usado aqui eu tirei kkkkkkkkk
-    # ta no github ent, vcs querem ver?
 
 
 class ReasonAsker():

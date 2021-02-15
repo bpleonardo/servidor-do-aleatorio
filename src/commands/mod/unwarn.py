@@ -36,7 +36,14 @@ class UnwarnCMD(commands.Cog):
 
         await ctx.send(f'Removido warn {index if index else 1} com o motivo "{reason}"')
 
-        self.bot.dispatch('mod_action', 'unwarn', ctx.author, member, index=index if index else 1)
+        self.bot.dispatch(
+            'mod_action',
+            'unwarn',
+            ctx.author,
+            member,
+            reason,
+            index=index if index else 1
+        )
 
 
 def setup(bot):
