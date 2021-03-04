@@ -23,7 +23,7 @@ class ModlogFEAT(commands.Cog):
         await self.bot.get_channel(config.modlog_staff_channel).send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_mod_action(self, name, author, member, reason=None, *, timestamp, **extra):
+    async def on_mod_action(self, name, author, member, reason=None, *, timestamp=None, **extra):
         text = '\n'.join(get_data('modlog_texts.json')[name.lower()])
         desc = text.format(P=config.emotes[9], author=author, member=member, reason=reason, **extra)
 
