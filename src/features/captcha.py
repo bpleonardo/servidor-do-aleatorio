@@ -72,6 +72,7 @@ class CaptchaFEAT(commands.Cog):
                     await member.kick(reason='10 tentativas.')
                 except HTTPException:
                     pass
+                return
 
             tries += 1
             if max(1, tries) % 4 == 0:
