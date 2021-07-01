@@ -4,7 +4,7 @@ from typing import Set, Tuple
 from discord import Status
 from pytz import timezone
 
-prefix = '/'
+prefix = '$'
 
 main_color = 0xe65545
 
