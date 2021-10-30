@@ -46,9 +46,9 @@ presences: Set[Tuple[Status, int, str]] = {
     #   Transmitindo: 1
     #   Ouvindo: 2
     #   Assistindo: 3
-    (Status.invisible, 3, 'youtube.com/alelixo'),
-    (Status.invisible, 2, 'algumas denuncias.'),
-    (Status.invisible, 3, 'discord.gg/ZTzrbrs'),
+    (Status.dnd, 3, 'youtube.com/alelixo'),
+    (Status.dnd, 2, 'algumas denuncias.'),
+    (Status.dnd, 3, 'discord.gg/ZTzrbrs'),
 }
 
 del Set, Status, Tuple, timezone
