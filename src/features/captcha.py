@@ -59,7 +59,7 @@ class CaptchaFEAT(commands.Cog):
             'Para a segurança do servidor, precisamos que você confirme que não é um robô.\n'
             'Escreva a palavra "{}" como forma de verificação.\n\n'
             '**Não** use nenhum tipo de formatação, mesmo a mensagem incluindo.\n'
-            'Alguns exemplos do que não utilizar: **1**, ~~2~~, __3__, ||4||
+            'Alguns exemplos do que não utilizar: **1**, ~~2~~, __3__, ||4||'
         )
 
         possible_formats = ('~~', '_', '**', '__', '||')
