@@ -14,7 +14,7 @@ class EmbedCMD(commands.Cog):
     @commands.max_concurrency(1, commands.BucketType.user)
     @commands.has_permissions(administrator=True)
     async def _embed(self, ctx):  # noqa # pylint: disable=too-many-locals
-        question_embed = discord.Embed(color=config.main_color)
+        question_embed = discord.Embed(description='\u200b, color=config.main_color)
 
         msg = await ctx.send(embed=question_embed)
 
